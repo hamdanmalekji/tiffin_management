@@ -77,7 +77,6 @@ class _AuthPageState extends State<AuthPage> {
       floatingActionButton: Builder(builder: (context) {
         if(Platform.isAndroid) {
           return FloatingActionButton.extended(
-          backgroundColor: Colors.blueAccent,
           onPressed: () {
             if (users.value == null) {
               return;
