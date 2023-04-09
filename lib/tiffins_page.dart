@@ -243,6 +243,7 @@ class _ViewStatsPageState extends State<ViewStatsPage> {
                                       readOnly: !Platform.isAndroid,
                                       value: cost[entry.key]?.toString(),
                                       textInputType: TextInputType.number,
+                                      textInputAction: i<entries.length-1?TextInputAction.next:TextInputAction.done,
                                       border: true,
                                       onEditingComplete: () {},
                                       onChanged: (value) {
@@ -335,8 +336,10 @@ class _ViewStatsPageState extends State<ViewStatsPage> {
                                   .removeWhere((key, value) => value == 0);
                             }
 
-                            final total = userWiseCost.isEmpty?0:userWiseCost.values
-                                .reduce((value, element) => value + element);
+                            final total = userWiseCost.isEmpty
+                                ? 0
+                                : userWiseCost.values.reduce(
+                                    (value, element) => value + element);
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -348,7 +351,7 @@ class _ViewStatsPageState extends State<ViewStatsPage> {
                                       Text(
                                         userWiseCost.entries
                                             .map((entry) =>
-                                                '${entry.key} : ${formatter.format(entry.value)} ${ ' Remaining ${formatter.format((entry.value - ((transactions[entry.key]?.isNotEmpty ?? false) ? transactions[entry.key]!.map((e) => e.amount).reduce((value, element) => value + element) : 0)))}'}')
+                                                '${entry.key} : ${formatter.format(entry.value)} ${' Remaining ${formatter.format((entry.value - ((transactions[entry.key]?.isNotEmpty ?? false) ? transactions[entry.key]!.map((e) => e.amount).reduce((value, element) => value + element) : 0)))}'}')
                                             .join('\n'),
                                         style: AppFontStyle.fontLato(
                                           fontSize: 16,
@@ -529,6 +532,7 @@ class CommonTextField extends StatelessWidget {
   final String? value;
   final VoidCallback? onEditingComplete;
   final bool readOnly;
+  final TextInputAction? textInputAction;
 
   const CommonTextField(
       {Key? key,
@@ -542,13 +546,15 @@ class CommonTextField extends StatelessWidget {
       this.onChanged,
       this.validator,
       this.fontSize,
-      required this.textInputType})
+      required this.textInputType,
+      this.textInputAction})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       enabled: enabled,
+      textInputAction: textInputAction,
       validator: validator,
       onChanged: onChanged,
       controller: controller,

@@ -76,7 +76,7 @@ class _AuthPageState extends State<AuthPage> {
       ),
       floatingActionButton: Builder(builder: (context) {
         if(Platform.isAndroid) {
-          return FloatingActionButton(
+          return FloatingActionButton.extended(
           backgroundColor: Colors.blueAccent,
           onPressed: () {
             if (users.value == null) {
@@ -159,7 +159,7 @@ class _AuthPageState extends State<AuthPage> {
                       );
                     }));
           },
-          child: const Icon(Icons.add),
+          label: const Text('Add Payment'),
         );
         }
         return Container();
@@ -191,12 +191,19 @@ class _AuthPageState extends State<AuthPage> {
                             alignment: Alignment.center,
                             padding: const EdgeInsets.all(4),
                             width: double.infinity,
-                            child: Text(
-                              'View Tiffins',
-                              style: AppFontStyle.fontLato(
-                                fontSize: 18,
-                                color: Colors.white,
-                              ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.remove_red_eye_sharp),
+                                SizedBox(width: 5,),
+                                Text(
+                                  'View Tiffins',
+                                  style: AppFontStyle.fontLato(
+                                    fontSize: 18,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         );
@@ -218,6 +225,82 @@ class _AuthPageState extends State<AuthPage> {
                   ),
                 ),
               ),
+              Padding(
+                padding: const EdgeInsets.only(right: 55,left: 10,top: 10,bottom: 10),
+                child: ElevatedButton( onPressed: () {
+                  String? user;
+                  showDialog(context: context, builder: (BuildContext context) {
+                    return Dialog(
+
+                      child: Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CommonTextField(
+                              border: true,
+                              textInputType: TextInputType.name,
+                              value: '',
+                              onChanged: (value) {
+                                user = value;
+                              },
+                            ),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                setState(() {
+                                });
+                                if (user != null) {
+                                  Navigator.pop(context);
+
+                                  FireBridge.addUser(user!)
+                                      .then((value) {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'User is successfully added!!',
+                                          style: AppFontStyle.fontLato(
+                                              fontSize: 18,
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                    );
+                                  });
+                                }
+                              },
+                              child: const Text(
+                                'Submit',
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    );
+                  });
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.all(4),
+                  width: double.infinity,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.add),
+                      Text(
+                        'Add User',
+                        style: AppFontStyle.fontLato(
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+              ),
               Expanded(
                 child: FutureBuilder<List<String>?>(
                   key: UniqueKey(),
@@ -232,30 +315,88 @@ class _AuthPageState extends State<AuthPage> {
                           height: 10,
                         ),
                         itemBuilder: (context, i) {
-                          return InkWell(
-                            borderRadius: BorderRadius.circular(10),
-                            onTap: () {
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) {
-                                return HomePage(name: data.data![i]);
-                              }));
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                boxShadow: kElevationToShadow[10],
-                                color: Colors.white,
-                                border:
-                                    Border.all(color: Colors.blue, width: 2),
-                                borderRadius: BorderRadius.circular(10),
+                          return Row(
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              Expanded(
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(10),
+                                  onTap: () {
+                                    Navigator.push(context,
+                                        MaterialPageRoute(builder: (context) {
+                                      return HomePage(name: data.data![i]);
+                                    }));
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      boxShadow: kElevationToShadow[10],
+                                      color: Colors.white,
+                                      border:
+                                          Border.all(color: Colors.blue, width: 2),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    padding: const EdgeInsets.all(8.0),
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      data.data![i],
+                                      style: AppFontStyle.fontLato(
+                                          fontSize: 18, color: Colors.blue),
+                                    ),
+                                  ),
+                                ),
                               ),
-                              padding: const EdgeInsets.all(8.0),
-                              alignment: Alignment.center,
-                              child: Text(
-                                data.data![i],
-                                style: AppFontStyle.fontLato(
-                                    fontSize: 18, color: Colors.blue),
-                              ),
-                            ),
+                              IconButton(icon: const Icon(Icons.delete,color: Colors.red,), onPressed: () {
+
+                                  showDialog(context: context, builder: (BuildContext context) {
+                                    return Dialog(
+                                      child: Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Text(
+                                              'It will erase all the data related to user!,Are you sure?'
+                                            ),
+                                            Row(
+                                              children: [
+                                                TextButton( onPressed: () {
+                                                  setState(() {
+                                                    // data.data![i]
+                                                  });
+                                                  Navigator.pop(context);
+                                                  FireBridge.removeUser(data.data![i]).then((value){
+                                                    ScaffoldMessenger.of(context)
+                                                        .showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(
+                                                          'User is successfully removed!!',
+                                                          style: AppFontStyle.fontLato(
+                                                              fontSize: 18,
+                                                              color: Colors.white),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  });
+
+                                                },
+                                                child: const Text(
+                                                  'Yes'
+                                                )),
+                                                TextButton(onPressed: () {
+                                    Navigator.pop(context);
+                                    },
+                                                child: const Text(
+                                                  'No'
+                                                ))
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  });
+                                          },)
+                                              ],
                           );
                         },
                         itemCount: data.data!.length,

@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:tiffin_app/home_page.dart';
 import 'package:collection/collection.dart';
-import 'package:tiffin_app/main.dart';
 
 class FireBridge {
   static Future<List<String>?> loadAllUsers() async {
@@ -99,6 +97,19 @@ class FireBridge {
       return false;
     }
   }
+  static Future<bool> updateUserName(List<String> users) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Tiffin')
+          .doc('user')
+          .update({'list':users});
+      print('DONE');
+      return true;
+    } on Exception catch (e) {
+      print('ERROR ${e.toString()}');
+      return false;
+    }
+  }
 
   static Future<bool> updateCost(String date, num? cost) async {
     try {
@@ -131,6 +142,32 @@ class FireBridge {
           ),
         },
       );
+      return true;
+    } on Exception catch (e) {
+      print('ERROR ${e.toString()}');
+      return false;
+    }
+  }
+
+  static Future<bool> addUser(String user) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Tiffin')
+          .doc('users').update({"list":FieldValue.arrayUnion([user])});
+
+      return true;
+    } on Exception catch (e) {
+      print('ERROR ${e.toString()}');
+      return false;
+    }
+  }
+
+  static Future<bool> removeUser(String user) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('Tiffin')
+          .doc('users').update({"list":FieldValue.arrayRemove([user])});
+
       return true;
     } on Exception catch (e) {
       print('ERROR ${e.toString()}');
